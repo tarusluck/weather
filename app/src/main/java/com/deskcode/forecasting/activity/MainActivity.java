@@ -5,8 +5,8 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.deskcode.forecasting.R;
@@ -49,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
     JSONObject data;
     RecyclerView rvWeatherList;
     RecycleViewWeather adapterViewWeather;
-    TextView tvTempreture,tvAreaName;
-    String latitude, longitude,curretAddress;
+    TextView tvTempreture, tvAreaName;
+    String latitude, longitude, curretAddress;
     private LocationGooglePlayServicesProvider provider;
+    ImageView ivWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,36 +62,12 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
         rvWeatherList = findViewById(R.id.rvWeatherList);
         tvTempreture = findViewById(R.id.tvTempreture);
         tvAreaName = findViewById(R.id.tvAreaName);
-        getCurrentLocation();
-        getJSON();
+        ivWeather = findViewById(R.id.ivWeather);
+        startLocation();
         setWeatherAdapter();
-//        startLocation();
     }
 
-    private void getCurrentLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            return;
-        }
-        locationManager.getProviders(true);
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (location == null) {
-            startLocation();
-        } else {
-            latitude = String.valueOf(location.getLatitude());
-            longitude = String.valueOf(location.getLongitude());
-            Log.e("Location", String.valueOf(location.getLatitude()));
-
-        }
-
-//       GPSTracker gpsTracker=new GPSTracker(this);
-//       if (gpsTracker.getIsGPSTrackingEnabled())
-//       {
-//           Log.e("Locationss", String.valueOf(gpsTracker.getLatitude()));
-//       }
-
-    }
 
 
     private void setWeatherAdapter() {
@@ -99,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void getJSON() {
+    public void getCurrentWeather() {
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -136,13 +114,16 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                 return null;
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             protected void onPostExecute(Void Void) {
                 JSONObject mainJsonObject;
                 if (data != null) {
                     try {
                         mainJsonObject = new JSONObject(data.get("main").toString());
-                        tvTempreture.setText(mainJsonObject.get("temp").toString());
+                        String tempString=mainJsonObject.get("temp").toString()+"°C";
+                        tvTempreture.setText(tempString);
+
                         Log.d("mainJsonObject", mainJsonObject.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -206,11 +187,13 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
     private void showLocation(Location location) {
         if (location != null) {
             final String text = String.format("Latitude %.6f, Longitude %.6f",
-                    location.
-            (),
+                    location.getLatitude(),
                     location.getLongitude());
-            Log.e("Locations2", text);
 
+
+            latitude = String.valueOf(location.getLatitude());
+            longitude = String.valueOf(location.getLongitude());
+            getCurrentWeather();
             // We are going to get the address for the current position
             SmartLocation.with(this).geocoding().reverse(location, new OnReverseGeocodingListener() {
                 @Override
@@ -222,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                         List<String> addressElements = new ArrayList<>();
                         for (int i = 0; i <= result.getMaxAddressLineIndex(); i++) {
                             addressElements.add(result.getAddressLine(i));
-                            curretAddress=result.getAdminArea();
+                            curretAddress = result.getAdminArea();
                         }
                         builder.append(TextUtils.join(", ", addressElements));
                         tvAreaName.setText(curretAddress);
@@ -234,4 +217,5 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
             Log.e("Locations4", "Null location");
         }
     }
+
 }
