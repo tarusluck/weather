@@ -4,5 +4,10 @@
     <string name="cancel">cancel</string>
     <string name="tmp_fer">Tempreture F</string>
     <string name="tmp_c">Tempreture C</string>
+    <string name="extreme">UVIndex : Extreme</string>
+    <string name="very_high">UVIndex : Very High</string>
+    <string name="high">UVIndex : High</string>
+    <string name="low">UVIndex :Low</string>
+    <string name="moderate">UVIndex :Moderate</string>
 
 </resources>

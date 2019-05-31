@@ -57,13 +57,13 @@ import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProv
 
 public class MainActivity extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
 
-    JSONObject data, UVIndexObject;
+    JSONObject UVIndexObject, currentWeatherObject, todayWeatherObject;
     RecyclerView rvWeatherList;
     RecycleViewWeather adapterViewWeather;
     TextView tvTempreture, tvAreaName, tvUVIndex;
-    String latitude, longitude, curretAddress, iconName;
+    String latitude, longitude, currentAddress, iconName;
     ImageView ivWeather;
-    ArrayList<String> todayDataList, todayTimeList;
+    ArrayList<String> todayrvDataList, todayTimeList;
     ProgressDialog progressDialog;
     int counter = 3;
     private LocationGooglePlayServicesProvider provider;
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
         JodaTimeAndroid.init(this);
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setMessage("loading....");
-        todayDataList = new ArrayList<>();
+        todayrvDataList = new ArrayList<>();
         todayTimeList = new ArrayList<>();
         rvWeatherList = findViewById(R.id.rvWeatherList);
         tvTempreture = findViewById(R.id.tvTempreture);
@@ -88,29 +88,24 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
 
 
     private void setWeatherAdapter() {
-        adapterViewWeather = new RecycleViewWeather(MainActivity.this, todayDataList, todayTimeList);
+        adapterViewWeather = new RecycleViewWeather(MainActivity.this, todayrvDataList, todayTimeList);
         rvWeatherList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvWeatherList.setAdapter(adapterViewWeather);
     }
 
     /*----------------------get current weather-----------------------*/
     @SuppressLint("StaticFieldLeak")
-    public void getCurrentWeather(String tempreture, String tempType) {
-
+    public void getCurrentWeather(String temperature, String temperatureType) {
         new AsyncTask<Void, Void, Void>() {
-
-
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-
-
             }
 
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    URL url = new URL(Constants.CURRENT_WEATHER + "lat=" + latitude + "&lon=" + longitude + "&appid=" + Constants.APP_ID + "&units=" + tempreture);
+                    URL url = new URL(Constants.CURRENT_WEATHER + "lat=" + latitude + "&lon=" + longitude + "&appid=" + Constants.APP_ID + "&units=" + temperature);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     Log.e("Connection", connection.toString());
 
@@ -120,18 +115,16 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     while ((tmp = reader.readLine()) != null)
                         json.append(tmp).append("\n");
                     reader.close();
-                    data = new JSONObject(json.toString());
-                    if (data.getInt("cod") != 200) {
+                    currentWeatherObject = new JSONObject(json.toString());
+                    if (currentWeatherObject.getInt("cod") != 200) {
                         System.out.println("Cancelled");
                         return null;
                     }
 
                 } catch (Exception e) {
-
                     System.out.println("Exception " + e.getMessage());
                     return null;
                 }
-
                 return null;
             }
 
@@ -147,25 +140,22 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     e.printStackTrace();
                 }
                 JSONObject mainJsonObject;
-                if (data != null) {
+                if (currentWeatherObject != null) {
                     try {
-                        mainJsonObject = new JSONObject(data.get("main").toString());
-                        String tempString = mainJsonObject.get("temp").toString() + tempType;
+                        mainJsonObject = new JSONObject(currentWeatherObject.get("main").toString());
+                        String tempString = mainJsonObject.get("temp").toString() + temperatureType;
                         tvTempreture.setText(tempString);
-                        String weatherData = data.get("weather").toString();
+                        String weatherData = currentWeatherObject.get("weather").toString();
                         JSONArray jsonarrayWeather = new JSONArray(weatherData);
                         for (int i = 0; i < jsonarrayWeather.length(); i++) {
                             JSONObject jsonObj = jsonarrayWeather.getJSONObject(i);
                             iconName = jsonObj.getString("icon");
                         }
-                        Log.d("mainJsonObject", mainJsonObject.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     Glide.with(MainActivity.this).load(Constants.IMAGE_URL + iconName + Constants.IMAGE_TYPE).into(ivWeather);
                 }
-
             }
         }.execute();
 
@@ -179,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
             protected void onPreExecute() {
                 super.onPreExecute();
             }
-
 
             @Override
             protected Void doInBackground(Void... voids) {
@@ -195,14 +184,13 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     reader.close();
                     UVIndexObject = new JSONObject(json.toString());
                 } catch (Exception e) {
-
                     System.out.println("Exception " + e.getMessage());
                     return null;
                 }
-
                 return null;
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             protected void onPostExecute(Void aVoid) {
                 try {
@@ -217,33 +205,30 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     try {
                         JSONObject jsonObject = new JSONObject(UVIndexObject.toString());
                         String UVIndex = jsonObject.get("value").toString();
-                        Log.e("UVIndex", UVIndex);
                         float UVIndexFlot = Float.parseFloat(UVIndex);
                         if (UVIndexFlot <= 2.9) {
-                            tvUVIndex.setText("UVIndex :Low");
+                            tvUVIndex.setText(getResources().getString(R.string.low));
                         } else if (UVIndexFlot == 3.0 && UVIndexFlot <= 5.9) {
-                            tvUVIndex.setText("UVIndex :Moderate");
+                            tvUVIndex.setText(getResources().getString(R.string.moderate));
                         } else if (UVIndexFlot == 6.0 && UVIndexFlot <= 7.9) {
-                            tvUVIndex.setText("UVIndex : High");
+                            tvUVIndex.setText(getResources().getString(R.string.high));
                         } else if (UVIndexFlot == 8.0 && UVIndexFlot <= 10.9) {
-                            tvUVIndex.setText("UVIndex : Very High");
+                            tvUVIndex.setText(getResources().getString(R.string.very_high));
                         } else if (UVIndexFlot >= 11) {
-                            tvUVIndex.setText("UVIndex : Extreme");
+                            tvUVIndex.setText(getResources().getString(R.string.extreme));
                         }
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
         }.execute();
     }
 
-
     /*------today weather List-----*/
     @SuppressLint("StaticFieldLeak")
-    private void todayWeatherList(String tempType) {
+    private void todayWeatherList(String temperature) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
@@ -253,8 +238,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-
-                    URL url = new URL(Constants.TODAY_WEATHER + "lat=" + latitude + "&lon=" + longitude + "&appid=" + Constants.APP_ID + "&units=" + tempType);
+                    URL url = new URL(Constants.TODAY_WEATHER + "lat=" + latitude + "&lon=" + longitude + "&appid=" + Constants.APP_ID + "&units=" + temperature);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     Log.e("Connection", connection.toString());
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -263,18 +247,16 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     while ((tmp = reader.readLine()) != null)
                         json.append(tmp).append("\n");
                     reader.close();
-                    data = new JSONObject(json.toString());
-                    if (data.getInt("cod") != 200) {
+                    todayWeatherObject = new JSONObject(json.toString());
+                    if (todayWeatherObject.getInt("cod") != 200) {
                         System.out.println("Cancelled");
                         return null;
                     }
 
                 } catch (Exception e) {
-
                     System.out.println("Exception " + e.getMessage());
                     return null;
                 }
-
                 return null;
             }
 
@@ -289,35 +271,32 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Date c = Calendar.getInstance().getTime();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                String CurrentDate = df.format(c);
-                if (data != null) {
+                Date currentLocalDate = Calendar.getInstance().getTime();
+                SimpleDateFormat currentDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String CurrentDate = currentDateFormat.format(currentLocalDate);
+                if (todayWeatherObject != null) {
                     try {
-                        todayDataList.clear();
+                        todayrvDataList.clear();
                         todayTimeList.clear();
-                        JSONArray jsonarrayListData = new JSONArray(data.get("list").toString());
-                        for (int i = 0; i < jsonarrayListData.length(); i++) {
-                            JSONObject jsonObj = jsonarrayListData.getJSONObject(i);
-                            String dateData = jsonObj.getString("dt");
-                            long dateLong = Long.parseLong(dateData);
+                        JSONArray jsonArrayDataList = new JSONArray(todayWeatherObject.get("list").toString());
+                        for (int i = 0; i < jsonArrayDataList.length(); i++) {
+                            JSONObject jsonObjDataList = jsonArrayDataList.getJSONObject(i);
+                            String dateDataString = jsonObjDataList.getString("dt");
+                            long dateLong = Long.parseLong(dateDataString);
                             DateTime dateTime = new DateTime(dateLong * 1000L, DateTimeZone.getDefault());
-                            Log.e("dateTime", dateTime.toString());
-                            String Splitdate[] = dateTime.toString().split("T");
-                            String splitCurrentDateList = Splitdate[0];
-                            String splitTime = Splitdate[1].substring(0, 5);
+                            String[] splitDate = dateTime.toString().split("T");
+                            String splitCurrentDateList = splitDate[0];
+                            String splitTime = splitDate[1].substring(0, 5);
                             if (CurrentDate.equals(splitCurrentDateList)) {
-                                todayDataList.add(jsonObj.get("weather").toString());
+                                todayrvDataList.add(jsonObjDataList.get("weather").toString());
                                 todayTimeList.add(splitTime);
                             }
                         }
-                        Log.e("ListSize", String.valueOf(todayDataList.size()));
-                        setWeatherAdapter();
+                        adapterViewWeather.notifyDataSetChanged();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-
             }
         }.execute();
     }
@@ -347,15 +326,12 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
 
     /*-----------------------------get current location----------------------*/
 
-    private void startLocation() {
+    private void requestLocation() {
         provider = new LocationGooglePlayServicesProvider();
         provider.setCheckLocationSettings(true);
-
         SmartLocation smartLocation = new SmartLocation.Builder(this).logging(true).build();
-
         smartLocation.location(provider).start(MainActivity.this);
         smartLocation.activity().start(this);
-
     }
 
     @Override
@@ -369,17 +345,13 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
 
     @Override
     public void onLocationUpdated(Location location) {
-        showLocation(location);
+        getData(location);
 
     }
 
-    private void showLocation(Location location) {
+    private void getData(Location location) {
         if (location != null) {
-            final String text = String.format("Latitude %.6f, Longitude %.6f",
-                    location.getLatitude(),
-                    location.getLongitude());
-
-
+            final String text = String.format("Latitude %.6f, Longitude %.6f", location.getLatitude(), location.getLongitude());
             latitude = String.valueOf(location.getLatitude());
             longitude = String.valueOf(location.getLongitude());
 
@@ -397,16 +369,15 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                         List<String> addressElements = new ArrayList<>();
                         for (int i = 0; i <= result.getMaxAddressLineIndex(); i++) {
                             addressElements.add(result.getAddressLine(i));
-                            curretAddress = result.getLocality() + " " + result.getCountryName();
+                            currentAddress = result.getLocality() + " " + result.getCountryName();
                         }
                         builder.append(TextUtils.join(", ", addressElements));
-                        tvAreaName.setText(curretAddress);
-                        Log.e("Locations3", builder.toString());
+                        tvAreaName.setText(currentAddress);
                     }
                 }
             });
         } else {
-            Log.e("Locations4", "Null location");
+            Log.e("Locations", "Null location");
         }
     }
 
@@ -421,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
                             progressDialog.show();
-                            startLocation();
+                            requestLocation();
                         } else {
                             getPermission();
                         }
@@ -430,10 +401,9 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                         token.continuePermissionRequest();
-//                        getPermission();
                     }
                 }).
-                withErrorListener( error -> Toast.makeText(MainActivity.this, "some error", Toast.LENGTH_SHORT).show())
+                withErrorListener(error -> Toast.makeText(MainActivity.this, "some error", Toast.LENGTH_SHORT).show())
                 .onSameThread()
                 .check();
     }
