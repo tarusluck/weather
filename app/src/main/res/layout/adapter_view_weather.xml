@@ -6,7 +6,7 @@
     android:layout_marginEnd="8dp">
 
     <TextView
-        android:id="@+id/tvTemp"
+        android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -14,9 +14,11 @@
         android:textColor="@color/white" />
 
     <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_below="@+id/tvTemp"
+        android:id="@+id/ivWeatherList"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/tvTime"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/cloud" />
+        android:src="@drawable/cloud"
+        android:scaleType="fitXY"/>
 </RelativeLayout>

@@ -3,4 +3,6 @@
     <string name="action_settings">Ok</string>
     <string name="cancel">cancel</string>
     <string name="tmp_fer">Tempreture F</string>
+    <string name="tmp_c">Tempreture C</string>
+
 </resources>

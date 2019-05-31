@@ -6,23 +6,30 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.deskcode.forecasting.R;
 import com.deskcode.forecasting.activity.MainActivity;
-import com.deskcode.forecasting.models.ForecastModel;
+import com.deskcode.forecasting.constants.Constants;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class RecycleViewWeather extends RecyclerView.Adapter<RecycleViewWeather.MyViewHolder> {
-    List<ForecastModel> usersArrayList;
-    ArrayList<String> stringArrayList;
+    ArrayList<String> todayDataList, todayTimeList;
     Context context;
+    String iconName;
 
 
-    public RecycleViewWeather(MainActivity context) {
+    public RecycleViewWeather(MainActivity context, ArrayList<String> todayDataList, ArrayList<String> todayTimeList) {
         this.context = context;
+        this.todayDataList = todayDataList;
+        this.todayTimeList = todayTimeList;
     }
 
     @NonNull
@@ -35,23 +42,33 @@ public class RecycleViewWeather extends RecyclerView.Adapter<RecycleViewWeather.
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-//        myViewHolder.tvUserName.setText(usersArrayList.get(i).getTitle());
+        try {
+            JSONArray jsonArray = new JSONArray(todayDataList.get(i));
+            for (int j = 0; j < jsonArray.length(); j++) {
+                JSONObject jsonObj = jsonArray.getJSONObject(j);
+                iconName = jsonObj.getString("icon");
+                Glide.with(context).load(Constants.IMAGE_URL + iconName + Constants.IMAGE_TYPE).into(myViewHolder.ivWeatherList);
+                myViewHolder.tvTime.setText(todayTimeList.get(i));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public int getItemCount() {
-
-        return 8;
-
-
+        return todayDataList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTemp;
+        TextView tvTime;
+        ImageView ivWeatherList;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvTemp = itemView.findViewById(R.id.tvTemp);
+            tvTime = itemView.findViewById(R.id.tvTime);
+            ivWeatherList = itemView.findViewById(R.id.ivWeatherList);
         }
     }
 }
