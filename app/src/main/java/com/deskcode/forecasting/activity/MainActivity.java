@@ -397,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                         List<String> addressElements = new ArrayList<>();
                         for (int i = 0; i <= result.getMaxAddressLineIndex(); i++) {
                             addressElements.add(result.getAddressLine(i));
-                            curretAddress = result.getAdminArea() + " " + result.getCountryName();
+                            curretAddress = result.getLocality() + " " + result.getCountryName();
                         }
                         builder.append(TextUtils.join(", ", addressElements));
                         tvAreaName.setText(curretAddress);
