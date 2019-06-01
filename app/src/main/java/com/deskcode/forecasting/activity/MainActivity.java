@@ -290,6 +290,16 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     e.printStackTrace();
                 }
                 Date currentLocalDate = Calendar.getInstance().getTime();
+
+                //Check current time is more than 11PM or not
+                SimpleDateFormat localDateFormat = new SimpleDateFormat("HH");
+                int time = Integer.parseInt(localDateFormat.format(currentLocalDate));
+                if (time >= 21) {
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DAY_OF_MONTH, 1);
+                    currentLocalDate = c.getTime();
+                }
+
                 SimpleDateFormat currentDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String CurrentDate = currentDateFormat.format(currentLocalDate);
                 if (todayWeatherObject != null) {
@@ -318,29 +328,6 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
             }
         }.execute();
     }
-
-//    /*----------------------option menu for change temp--------------------------*/
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.itemTempF:
-//                counter = 1;
-//                getCurrentWeather(Constants.TEMP_TYPE_F, "°F");
-//                break;
-//            case R.id.itemTempC:
-//                counter = 1;
-//                getCurrentWeather(Constants.TEMP_TYPE_C, "°C");
-//                break;
-//        }
-//        return super.onOptionsItemSelected(item);
-//
-//    }
 
     /*----------------------settings menu for change temp--------------------------*/
 
@@ -427,7 +414,15 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
                             progressDialog.show();
-                            requestLocation();
+
+
+                            Location location = new Location("");
+                            location.setLatitude(21.7);
+                            location.setLongitude(72.7);
+                            getData(location);
+
+
+//                            requestLocation();
                         } else {
                             getPermission();
                         }

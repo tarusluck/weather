@@ -98,8 +98,8 @@
 
                         <ImageView
                             android:id="@+id/ivWeather"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentRight="true"
                             android:layout_margin="10dp"
