@@ -13,8 +13,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,12 +59,13 @@ import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.geofencing.utils.TransitionGeofence;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 
-public class MainActivity extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener {
+public class MainActivity extends AppCompatActivity implements OnLocationUpdatedListener, OnActivityUpdatedListener, OnGeofencingTransitionListener, PopupMenu.OnMenuItemClickListener {
 
     JSONObject UVIndexObject, currentWeatherObject, todayWeatherObject;
     RecyclerView rvWeatherList;
     RecycleViewWeather adapterViewWeather;
     TextView tvTempreture, tvAreaName, tvUVIndex;
+    ImageButton btnSettings;
     String latitude, longitude, currentAddress, iconName;
     ImageView ivWeather;
     ArrayList<String> todayrvDataList, todayTimeList;
@@ -82,8 +87,21 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
         tvAreaName = findViewById(R.id.tvAreaName);
         tvUVIndex = findViewById(R.id.tvUVIndex);
         ivWeather = findViewById(R.id.ivWeather);
+        btnSettings = findViewById(R.id.btnSettings);
+
         getPermission();
         setWeatherAdapter();
+
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(MainActivity.this, v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_main, popup.getMenu());
+                popup.setOnMenuItemClickListener(MainActivity.this);
+                popup.show();
+            }
+        });
     }
 
 
@@ -301,15 +319,33 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
         }.execute();
     }
 
-    /*----------------------option menu for change temp--------------------------*/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+//    /*----------------------option menu for change temp--------------------------*/
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.itemTempF:
+//                counter = 1;
+//                getCurrentWeather(Constants.TEMP_TYPE_F, "°F");
+//                break;
+//            case R.id.itemTempC:
+//                counter = 1;
+//                getCurrentWeather(Constants.TEMP_TYPE_C, "°C");
+//                break;
+//        }
+//        return super.onOptionsItemSelected(item);
+//
+//    }
+
+    /*----------------------settings menu for change temp--------------------------*/
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.itemTempF:
                 counter = 1;
@@ -320,8 +356,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                 getCurrentWeather(Constants.TEMP_TYPE_C, "°C");
                 break;
         }
-        return super.onOptionsItemSelected(item);
-
+        return true;
     }
 
     /*-----------------------------get current location----------------------*/

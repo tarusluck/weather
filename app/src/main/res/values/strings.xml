@@ -9,5 +9,6 @@
     <string name="high">UVIndex : High</string>
     <string name="low">UVIndex :Low</string>
     <string name="moderate">UVIndex :Moderate</string>
+    <string name="settings">Settings</string>
 
 </resources>
