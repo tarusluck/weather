@@ -414,15 +414,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
                             progressDialog.show();
-
-
-                            Location location = new Location("");
-                            location.setLatitude(21.7);
-                            location.setLongitude(72.7);
-                            getData(location);
-
-
-//                            requestLocation();
+                            requestLocation();
                         } else {
                             getPermission();
                         }
