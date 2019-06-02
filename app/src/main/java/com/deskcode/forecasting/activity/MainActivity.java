@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
     JSONObject UVIndexObject, currentWeatherObject, todayWeatherObject;
     RecyclerView rvWeatherList;
     RecycleViewWeather adapterViewWeather;
-    TextView tvTempreture, tvAreaName, tvUVIndex;
+    TextView tvTempreture, tvAreaName, tvUVIndex, tvDesc;
     ImageButton btnSettings;
     String latitude, longitude, currentAddress, iconName;
     ImageView ivWeather;
@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
         todayTimeList = new ArrayList<>();
         rvWeatherList = findViewById(R.id.rvWeatherList);
         tvTempreture = findViewById(R.id.tvTempreture);
+        tvDesc = findViewById(R.id.tvDesc);
         tvAreaName = findViewById(R.id.tvAreaName);
         tvUVIndex = findViewById(R.id.tvUVIndex);
         ivWeather = findViewById(R.id.ivWeather);
@@ -162,7 +163,10 @@ public class MainActivity extends AppCompatActivity implements OnLocationUpdated
                     try {
                         mainJsonObject = new JSONObject(currentWeatherObject.get("main").toString());
                         String tempString = mainJsonObject.get("temp").toString() + temperatureType;
+                        JSONArray jsonArray = new JSONArray(currentWeatherObject.get("weather").toString());
+                        String weatherDesc = jsonArray.getJSONObject(0).getString("description");
                         tvTempreture.setText(tempString);
+                        tvDesc.setText(weatherDesc);
                         String weatherData = currentWeatherObject.get("weather").toString();
                         JSONArray jsonarrayWeather = new JSONArray(weatherData);
                         for (int i = 0; i < jsonarrayWeather.length(); i++) {
