@@ -10,5 +10,7 @@
     <string name="low">UVIndex :Low</string>
     <string name="moderate">UVIndex :Moderate</string>
     <string name="settings">Settings</string>
+    <string name="some_text_here">Some text here</string>
+    <string name="some_text_here_1">Some text here Some text here Some text here Some text here Some text here Some text here Some text here  Some text here  Some text here  Some text here   </string>
 
 </resources>
